@@ -1,6 +1,6 @@
 "use client";
 
-import styles from "./styles.module.scss";
+import styles from "./style.module.scss";
 
 export default function Landing() {
     return (

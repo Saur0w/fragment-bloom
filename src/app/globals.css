@@ -4,6 +4,18 @@
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
+  width: 100%;
+  min-height: 100vh;
   overflow-x: hidden;
+  background-color: #ded9d2;
+  color: #111111;
+  font-family: var(--font-inter), sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
 }
