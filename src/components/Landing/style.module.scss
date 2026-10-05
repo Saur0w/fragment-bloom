@@ -1,6 +1,138 @@
 .landing {
   position: relative;
-  height: 100vh;
   width: 100vw;
+  height: 100vh;
+  min-height: 600px;
+  overflow: hidden;
+  background-color: #ded9d2;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+/* Top text blocks below header */
+.topRow {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 100px 40px 0 40px;
+  box-sizing: border-box;
+  pointer-events: none;
+
+  .leftText,
+  .rightText {
+    pointer-events: auto;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+    color: #141414;
+    user-select: text;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  .rightText {
+    text-align: left;
+  }
+}
+
+/* Three.js interactive canvas */
+.canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
   z-index: 10;
+  display: block;
+
+  &.canvasFullScreen {
+    z-index: 110;
+  }
+}
+
+/* Fullscreen close button */
+.closeBtn {
+  position: fixed;
+  top: 28px;
+  right: 36px;
+  z-index: 120;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #f5f5f5;
+  background-color: rgba(20, 20, 20, 0.75);
+  padding: 8px 16px;
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  user-select: none;
+}
+
+/* Giant background typography D R I F T */
+.bigTitle {
+  position: absolute;
+  bottom: 22px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 40px;
+  box-sizing: border-box;
+  font-size: clamp(8rem, 24vw, 30rem);
+  font-weight: 900;
+  line-height: 0.76;
+  letter-spacing: -0.035em;
+  color: #141414;
+  user-select: none;
+  pointer-events: none;
+  z-index: 5;
+
+  span {
+    display: inline-block;
+  }
+}
+
+/* Bottom scroll label */
+.scrollLabel {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #666666;
+  text-transform: uppercase;
+  z-index: 20;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .topRow {
+    padding: 80px 20px 0 20px;
+    flex-direction: column;
+    gap: 16px;
+
+    .leftText,
+    .rightText {
+      font-size: 13px;
+    }
+  }
+
+  .bigTitle {
+    padding: 0 16px;
+    font-size: clamp(5rem, 23vw, 12rem);
+  }
 }

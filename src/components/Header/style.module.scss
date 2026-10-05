@@ -7,9 +7,15 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding: 30px 40px;
-  background-color: #ded9d2;
+  background-color: transparent;
   z-index: 100;
   box-sizing: border-box;
+
+  a {
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+  }
 
   .logo {
     justify-self: start;
