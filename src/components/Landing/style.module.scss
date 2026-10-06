@@ -43,15 +43,22 @@
   }
 }
 
-/* Three.js interactive canvas */
-.canvas {
+/* Three.js R3F Canvas Container */
+.canvasWrapper {
   position: absolute;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
   z-index: 10;
-  display: block;
+  pointer-events: auto;
+
+  canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+    pointer-events: auto;
+  }
 
   &.canvasFullScreen {
     z-index: 110;
