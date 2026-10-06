@@ -2,6 +2,7 @@
 
 import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
+import * as THREE from "three/webgpu";
 import Mesh from "./mesh";
 import styles from "./style.module.scss";
 
@@ -17,7 +18,11 @@ export default function Scene({ isFullScreen, onToggle }: SceneProps) {
     >
       <Canvas
         camera={{ fov: 45, position: [0, 0, 5], near: 0.1, far: 100 }}
-        gl={{ alpha: true, antialias: true, powerPreference: "high-performance" }}
+        gl={async (props) => {
+          const renderer = new THREE.WebGPURenderer(props);
+          await renderer.init();
+          return renderer;
+        }}
         dpr={[1, 2]}
       >
         <Suspense fallback={null}>
