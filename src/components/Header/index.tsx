@@ -12,9 +12,9 @@ export default function Header() {
       <nav>
         <ul>
           <li><Link href="/">Preset</Link></li>
-          <li><Link href="/">Specs</Link></li>
-          <li><Link href="/">Stills</Link></li>
-          <li><Link href="/">Film</Link></li>
+          <li><Link href="/">Journal</Link></li>
+          <li><Link href="/">Cars</Link></li>
+          <li><Link href="/">About</Link></li>
         </ul>
       </nav>
       <div className={styles.getInTouch}>
