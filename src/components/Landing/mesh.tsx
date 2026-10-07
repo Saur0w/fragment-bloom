@@ -15,6 +15,7 @@ interface MeshProps {
 
 export default function Mesh({ isFullScreen, onToggle }: MeshProps) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const materialRef = useRef<THREE.MeshBasicNodeMaterial>(null);
   const isFirstRender = useRef(true);
   const { viewport, size } = useThree();
 
@@ -27,34 +28,37 @@ export default function Mesh({ isFullScreen, onToggle }: MeshProps) {
     crossOrigin: "anonymous",
   });
 
-  // TSL uniform nodes for interactive water droplet ripple and transitions
-  const uniforms = useMemo(
-    () => ({
-      progress: uniform(0.0),
-      time: uniform(0.0),
-      resolution: uniform(new THREE.Vector2(size.width, size.height)),
-      textureResolution: uniform(new THREE.Vector2(16, 9)),
-    }),
-    []
-  );
-
-  // Build the TSL MeshBasicNodeMaterial
+  // Build the TSL MeshBasicNodeMaterial and attach uniform nodes to userData
   const material = useMemo(() => {
-    const positionNode = createWaterPositionNode(uniforms.progress, uniforms.time);
+    const uProgress = uniform(0.0);
+    const uTime = uniform(0.0);
+    const uResolution = uniform(new THREE.Vector2(size.width, size.height));
+    const uTextureResolution = uniform(new THREE.Vector2(16, 9));
+
+    const positionNode = createWaterPositionNode(uProgress, uTime);
     const colorNode = createWaterColorNode(
       texture,
-      uniforms.progress,
-      uniforms.time,
-      uniforms.resolution,
-      uniforms.textureResolution
+      uProgress,
+      uTime,
+      uResolution,
+      uTextureResolution
     );
 
-    return new THREE.MeshBasicNodeMaterial({
+    const mat = new THREE.MeshBasicNodeMaterial({
       positionNode,
       colorNode,
       transparent: true,
     });
-  }, [texture, uniforms]);
+
+    mat.userData = {
+      uProgress,
+      uTime,
+      uResolution,
+      uTextureResolution,
+    };
+
+    return mat;
+  }, [texture, size.width, size.height]);
 
   // Clean up material on unmount
   useEffect(() => {
@@ -65,19 +69,24 @@ export default function Mesh({ isFullScreen, onToggle }: MeshProps) {
 
   // Sync video resolution metadata and ensure playback
   useEffect(() => {
-    if (texture?.image) {
+    if (texture?.image && materialRef.current) {
       const video = texture.image as HTMLVideoElement;
       if (video.videoWidth && video.videoHeight) {
-        uniforms.textureResolution.value.set(video.videoWidth, video.videoHeight);
+        materialRef.current.userData.uTextureResolution.value.set(
+          video.videoWidth,
+          video.videoHeight
+        );
       }
       video.play().catch(() => {});
     }
-  }, [texture, uniforms]);
+  }, [texture]);
 
   // Keep screen resolution uniform updated
   useEffect(() => {
-    uniforms.resolution.value.set(size.width, size.height);
-  }, [size, uniforms]);
+    if (materialRef.current) {
+      materialRef.current.userData.uResolution.value.set(size.width, size.height);
+    }
+  }, [size.width, size.height]);
 
   // Card dimensions (~38% of viewport width)
   const cardW = Math.min(viewport.width * 0.38, viewport.height * 0.68 * (16 / 9));
@@ -86,23 +95,24 @@ export default function Mesh({ isFullScreen, onToggle }: MeshProps) {
 
   // Animate scale, position, and water ripple progress with GSAP
   useEffect(() => {
-    if (!meshRef.current) return;
+    if (!meshRef.current || !materialRef.current) return;
 
     const targetScaleX = isFullScreen ? viewport.width : cardW;
     const targetScaleY = isFullScreen ? viewport.height : cardH;
     const targetY = isFullScreen ? 0 : cardY;
+    const { uProgress } = materialRef.current.userData;
 
     if (isFirstRender.current) {
       isFirstRender.current = false;
       meshRef.current.scale.set(cardW, cardH, 1);
       meshRef.current.position.set(0, cardY, 0);
-      uniforms.progress.value = 0.0;
+      uProgress.value = 0.0;
       return;
     }
 
     gsap.killTweensOf(meshRef.current.scale);
     gsap.killTweensOf(meshRef.current.position);
-    gsap.killTweensOf(uniforms.progress);
+    gsap.killTweensOf(uProgress);
 
     // Expand mesh smoothly
     gsap.to(meshRef.current.scale, {
@@ -121,16 +131,18 @@ export default function Mesh({ isFullScreen, onToggle }: MeshProps) {
     });
 
     // Animate water ripple wave progress in TSL
-    gsap.to(uniforms.progress, {
+    gsap.to(uProgress, {
       value: isFullScreen ? 1.0 : 0.0,
       duration: 1.2,
       ease: "power2.inOut",
     });
-  }, [isFullScreen, viewport.width, viewport.height, cardW, cardH, cardY, uniforms]);
+  }, [isFullScreen, viewport.width, viewport.height, cardW, cardH, cardY]);
 
   // Frame update: advance TSL uniform time
   useFrame((_, delta) => {
-    uniforms.time.value += delta;
+    if (materialRef.current) {
+      materialRef.current.userData.uTime.value += delta;
+    }
   });
 
   // Single clean click handler
@@ -160,7 +172,7 @@ export default function Mesh({ isFullScreen, onToggle }: MeshProps) {
     >
       {/* 128x128 segments for smooth 3D physical water droplet wave ripples */}
       <planeGeometry args={[1, 1, 128, 128]} />
-      <primitive object={material} attach="material" />
+      <primitive ref={materialRef} object={material} attach="material" />
     </mesh>
   );
 }

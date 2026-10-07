@@ -19,7 +19,15 @@ export default function Scene({ isFullScreen, onToggle }: SceneProps) {
       <Canvas
         camera={{ fov: 45, position: [0, 0, 5], near: 0.1, far: 100 }}
         gl={async (props) => {
-          const renderer = new THREE.WebGPURenderer(props);
+          const { powerPreference, canvas, ...rest } = props;
+          const renderer = new THREE.WebGPURenderer({
+            ...rest,
+            canvas: canvas as HTMLCanvasElement,
+            powerPreference:
+              powerPreference === "high-performance" || powerPreference === "low-power"
+                ? powerPreference
+                : undefined,
+          });
           await renderer.init();
           return renderer;
         }}
